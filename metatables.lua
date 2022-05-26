@@ -1,8 +1,24 @@
-local code =
+local expectedMain = 'george'
+local respHash = ""
+local MAINCODE =
 	setmetatable(
 	{
-		['Hi'] = function(...)
-           print('Hey');
-    end
+		[expectedMain] = function(...)
+            print('hi')
+        end
+	},
+	{
+		__index = function(s, idx)
+			if idx ~= expectedMain then
+				return (function()
+					return function()
+						print('crack')
+					end
+				end)()
+			end
+			return s[idx]
+		end
 	}
 )
+
+return MAINCODE[respHash](...)
