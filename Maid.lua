@@ -29,14 +29,14 @@ end
 function Maid:CleanUp()
     for I, V in ipairs(self._tasks) do
         self._tasks[I] = nil
-		if typeof(V) == "RBXScriptConnection" then
-			V:Disconnect()
+	if typeof(V) == "RBXScriptConnection" then
+	    V:Disconnect()
         elseif type(V) == "function" then
             V()
         elseif V.Destroy then
             V:Destroy()
-		end
 	end
+    end
 end
 
 return Maid
