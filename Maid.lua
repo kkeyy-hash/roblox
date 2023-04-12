@@ -22,12 +22,12 @@ end
 
 --> Create task <--
 function Maid:GiveTask(Task)
-    assert(Task, "[MEDUSA.WTF] Task is required to proceed")
+    assert(Task, "[NORDHOOK.CC] Task is required to proceed")
     local TaskID = #self._tasks + 1
     self._tasks[TaskID] = Task
 
     if typeof(Task) == "table" and (not Task.Destroy) then
-        return error("[MEDUSA.WTF] Maid.GiveTask Error, function or RBXScriptConnection expected, got table")
+        return error("[NORDHOOK.CC] Maid.GiveTask Error, function or RBXScriptConnection expected, got table")
     end
 
     return TaskID
@@ -36,7 +36,7 @@ end
 
 --> Clean single task <--
 function Maid:CleanTask(Index, Task)
-    assert(Task, "[MEDUSA.WTF] Task is required to proceed")
+    assert(Task, "[NORDHOOK.CC] Task is required to proceed")
     local TaskType = typeof(Task)
 
     if TaskType == "RBXScriptConnection" then
