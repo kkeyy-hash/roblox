@@ -1,23 +1,42 @@
+--> modified & optimized by kkeyy | t.me/kkeyy1337 <--
+
+if getgenv().AmbaniLibrary then
+    getgenv().AmbaniLibrary.Menu:Destroy()
+    for _, Connection in next, getgenv().AmbaniLibrary.Connections do
+        if Connection then
+            local Type = typeof(Connection)
+            if Type == "RBXScriptConnection" then
+                Connection:Disconnect()
+            elseif Type == "function" then
+                Connection()
+            elseif Type == "thread" then
+                task.cancel(Connection)
+            elseif Connection.Destroy then
+                Connection:Destroy()
+            end
+        end
+    end
+    getgenv().AmbaniLibrary = nil
+end
+--
 local inputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
 local mouse = localPlayer:GetMouse()
-
+--
 local menu = game:GetObjects("rbxassetid://14663609034")[1] -- original: 12702460854
-if getgenv().ambanimenu ~= nil then
-    getgenv().ambanimenu:Destroy()
-end
-getgenv().ambanimenu = menu
 menu.bg.Position = UDim2.new(0.5, -menu.bg.Size.X.Offset / 2, 0.5, -menu.bg.Size.Y.Offset / 2)
 menu.Parent = gethui and gethui() or game:GetService("CoreGui")
 menu.bg.pre.Text = 'ambani<font color="#6fa2ff">.pub</font>'
+--
 local library = {
-    cheatname = "",
-    ext = "",
-    gamename = "",
+    cheatname = "ambani",
+    ext = ".cfg",
+    gamename = "Pet Simulator X",
     colorpicking = false,
+    Connections = {},
     tabbuttons = {},
     tabs = {},
     options = {},
@@ -37,7 +56,9 @@ local library = {
         Enum.UserInputType.MouseMovement
     }
 }
-
+getgenv().AmbaniLibrary = library
+getgenv().AmbaniLibrary.Menu = menu
+--
 function draggable(a)
     local b = inputService
     local c
@@ -50,13 +71,13 @@ function draggable(a)
             a.Position = UDim2.new(f.X.Scale, f.X.Offset + i.X, f.Y.Scale, f.Y.Offset + i.Y)
         end
     end
-    a.InputBegan:Connect(
+    Connections[#Connections + 1] = a.InputBegan:Connect(
         function(h)
             if h.UserInputType == Enum.UserInputType.MouseButton1 or h.UserInputType == Enum.UserInputType.Touch then
                 c = true
                 e = h.Position
                 f = a.Position
-                h.Changed:Connect(
+                Connections[#Connections + 1] = h.Changed:Connect(
                     function()
                         if h.UserInputState == Enum.UserInputState.End then
                             c = false
@@ -66,14 +87,14 @@ function draggable(a)
             end
         end
     )
-    a.InputChanged:Connect(
+    Connections[#Connections + 1] = a.InputChanged:Connect(
         function(h)
             if h.UserInputType == Enum.UserInputType.MouseMovement or h.UserInputType == Enum.UserInputType.Touch then
                 d = h
             end
         end
     )
-    b.InputChanged:Connect(
+    Connections[#Connections + 1] = b.InputChanged:Connect(
         function(h)
             if h == d and c then
                 g(h)
@@ -82,11 +103,11 @@ function draggable(a)
     )
 end
 draggable(menu.bg)
-
+--
 local tabholder = menu.bg.bg.bg.bg.main.group
 local tabviewer = menu.bg.bg.bg.bg.tabbuttons
-
-inputService.InputEnded:Connect(
+--
+Connections[#Connections + 1] = inputService.InputEnded:Connect(
     function(key)
         if key.KeyCode == Enum.KeyCode.RightShift then
             menu.Enabled = not menu.Enabled
@@ -98,7 +119,7 @@ inputService.InputEnded:Connect(
         end
     end
 )
-
+--
 local keyNames = {
     [Enum.KeyCode.LeftAlt] = "LALT",
     [Enum.KeyCode.RightAlt] = "RALT",
@@ -117,17 +138,17 @@ local keyNames = {
     [Enum.UserInputType.MouseButton2] = "MB2",
     [Enum.UserInputType.MouseButton3] = "MB3"
 }
-
+--
 library.notifyText.Font = 2
 library.notifyText.Size = 13
 library.notifyText.Outline = true
 library.notifyText.Color = Color3.new(1, 1, 1)
 library.notifyText.Position = Vector2.new(10, 60)
-
+--
 function library:Tween(...)
     tweenService:Create(...):Play()
 end
-
+--
 function library:notify(text)
     if playing then
         return
@@ -152,22 +173,22 @@ function library:notify(text)
         end
     )
 end
-
+--
 function library:addTab(name)
     local newTab = tabholder.tab:Clone()
     local newButton = tabviewer.button:Clone()
-
+    --
     table.insert(library.tabs, newTab)
     newTab.Parent = tabholder
     newTab.Visible = false
-
+    --
     table.insert(library.tabbuttons, newButton)
     newButton.Parent = tabviewer
     newButton.Modal = true
     newButton.Visible = true
     newButton.text.Text = name
     newButton.element.BackgroundColor3 = library.libColor
-    newButton.MouseButton1Click:Connect(
+    Connections[#Connections + 1] = newButton.MouseButton1Click:Connect(
         function()
             for i, v in next, library.tabs do
                 v.Visible = v == newTab
@@ -196,12 +217,12 @@ function library:addTab(name)
             end
         end
     )
-
+    --
     local tab = {}
     local groupCount = 0
     local jigCount = 0
     local topStuff = 2000
-
+    --
     function tab:createGroup(pos, groupname) -- newTab[pos == 0 and "left" or "right"]
         local groupbox = Instance.new("Frame")
         local grouper = Instance.new("Frame")
@@ -210,37 +231,37 @@ function library:addTab(name)
         local element = Instance.new("Frame")
         local title = Instance.new("TextLabel")
         local backframe = Instance.new("Frame")
-
+        --
         groupCount = groupCount - 1
-
+        --
         pos = pos:lower()
-
+        --
         groupbox.Parent = newTab[pos]
         groupbox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         groupbox.BorderColor3 = Color3.fromRGB(30, 30, 30)
         groupbox.BorderSizePixel = 2
         groupbox.Size = UDim2.new(0, 211, 0, 8)
         groupbox.ZIndex = groupCount
-
+        --
         grouper.Parent = groupbox
         grouper.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
         grouper.BorderColor3 = Color3.fromRGB(0, 0, 0)
         grouper.Size = UDim2.new(1, 0, 1, 0)
-
+        --
         UIListLayout.Parent = grouper
         UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
         UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
+        --
         UIPadding.Parent = grouper
         UIPadding.PaddingBottom = UDim.new(0, 4)
         UIPadding.PaddingTop = UDim.new(0, 7)
-
+        --
         element.Name = "element"
         element.Parent = groupbox
         element.BackgroundColor3 = library.libColor
         element.BorderSizePixel = 0
         element.Size = UDim2.new(1, 0, 0, 1)
-
+        --
         title.Parent = groupbox
         title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         title.BackgroundTransparency = 1.000
@@ -253,13 +274,13 @@ function library:addTab(name)
         title.TextSize = 13.000
         title.TextStrokeTransparency = 0.000
         title.TextXAlignment = Enum.TextXAlignment.Left
-
+        --
         backframe.Parent = groupbox
         backframe.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
         backframe.BorderSizePixel = 0
         backframe.Position = UDim2.new(0, 10, 0, -2)
         backframe.Size = UDim2.new(0, 13 + title.TextBounds.X, 0, 3)
-
+        --
         local group = {}
         function group:addToggle(args)
             if not args.flag and args.text then
@@ -269,17 +290,17 @@ function library:addTab(name)
                 return warn("⚠️ incorrect arguments ⚠️ - missing args on recent toggle")
             end
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 20)
-
+            --
             local toggleframe = Instance.new("Frame")
             local tobble = Instance.new("Frame")
             local mid = Instance.new("Frame")
             local front = Instance.new("Frame")
             local text = Instance.new("TextLabel")
             local button = Instance.new("TextButton")
-
+            --
             jigCount = jigCount - 1
             library.multiZindex = library.multiZindex - 1
-
+            --
             toggleframe.Name = "toggleframe"
             toggleframe.Parent = grouper
             toggleframe.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -287,29 +308,29 @@ function library:addTab(name)
             toggleframe.BorderSizePixel = 0
             toggleframe.Size = UDim2.new(1, 0, 0, 20)
             toggleframe.ZIndex = library.multiZindex
-
+            --
             tobble.Name = "tobble"
             tobble.Parent = toggleframe
             tobble.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             tobble.BorderColor3 = Color3.fromRGB(0, 0, 0)
             tobble.BorderSizePixel = 3
             tobble.Position = UDim2.new(0.0299999993, 0, 0.272000015, 0)
-
+            --
             tobble.Size = UDim2.new(0, 10, 0, 10)
-
+            --
             mid.Name = "mid"
             mid.Parent = tobble
             mid.BackgroundColor3 = Color3.fromRGB(69, 23, 255)
             mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
             mid.BorderSizePixel = 2
             mid.Size = UDim2.new(0, 10, 0, 10)
-
+            --
             front.Name = "front"
             front.Parent = mid
             front.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
             front.BorderColor3 = Color3.fromRGB(0, 0, 0)
             front.Size = UDim2.new(0, 10, 0, 10)
-
+            --
             text.Name = "text"
             text.Parent = toggleframe
             text.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
@@ -322,11 +343,11 @@ function library:addTab(name)
             text.TextSize = 13.000
             text.TextStrokeTransparency = 0.000
             text.TextXAlignment = Enum.TextXAlignment.Left
-
+            --
             button.Name = "button"
             button.Parent = toggleframe
             button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-
+            --
             button.BackgroundTransparency = 1.000
             button.BorderSizePixel = 0
             button.Size = UDim2.new(0, 101, 1, 0)
@@ -334,14 +355,14 @@ function library:addTab(name)
             button.Text = ""
             button.TextColor3 = Color3.fromRGB(0, 0, 0)
             button.TextSize = 14.000
-
+            --
             if args.disabled then
                 button.Visible = false
                 text.TextColor3 = library.disabledcolor
                 text.Text = args.text
                 return
             end
-
+            --
             local state = false
             function toggle(newState)
                 state = newState
@@ -352,7 +373,7 @@ function library:addTab(name)
                     args.callback(state)
                 end
             end
-            button.MouseButton1Click:Connect(
+            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     state = not state
                     front.Name = state and "accent" or "back"
@@ -365,17 +386,17 @@ function library:addTab(name)
                     end
                 end
             )
-            button.MouseEnter:connect(
+            Connections[#Connections + 1] = button.MouseEnter:connect(
                 function()
                     mid.BorderColor3 = library.libColor
                 end
             )
-            button.MouseLeave:connect(
+            Connections[#Connections + 1] = button.MouseLeave:connect(
                 function()
                     mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                 end
             )
-
+            --
             library.flags[args.flag] = false
             library.options[args.flag] = {
                 type = "toggle",
@@ -389,10 +410,10 @@ function library:addTab(name)
                     return warn("⚠️ incorrect arguments ⚠️ - missing args on toggle:keybind")
                 end
                 local next = false
-
+                --
                 local keybind = Instance.new("Frame")
                 local button = Instance.new("TextButton")
-
+                --
                 keybind.Parent = toggleframe
                 keybind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                 keybind.BackgroundTransparency = 1.000
@@ -400,7 +421,7 @@ function library:addTab(name)
                 keybind.BorderSizePixel = 0
                 keybind.Position = UDim2.new(0.720000029, 4, 0.272000015, 0)
                 keybind.Size = UDim2.new(0, 51, 0, 10)
-
+                --
                 button.Parent = keybind
                 button.BackgroundColor3 = Color3.fromRGB(187, 131, 255)
                 button.BackgroundTransparency = 1.000
@@ -413,7 +434,7 @@ function library:addTab(name)
                 button.TextSize = 13.000
                 button.TextStrokeTransparency = 0.000
                 button.TextXAlignment = Enum.TextXAlignment.Right
-
+                --
                 function updateValue(val)
                     if library.colorpicking then
                         return
@@ -421,7 +442,7 @@ function library:addTab(name)
                     library.flags[args.flag] = val
                     button.Text = keyNames[val] or val.Name
                 end
-                inputService.InputBegan:Connect(
+                Connections[#Connections + 1] = inputService.InputBegan:Connect(
                     function(key)
                         local key = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
                         if next then
@@ -437,8 +458,8 @@ function library:addTab(name)
                         end
                     end
                 )
-
-                button.MouseButton1Click:Connect(
+                --
+                Connections[#Connections + 1] = button.MouseButton1Click:Connect(
                     function()
                         if library.colorpicking then
                             return
@@ -449,7 +470,7 @@ function library:addTab(name)
                         next = true
                     end
                 )
-
+                --
                 library.flags[args.flag] = Enum.KeyCode.Unknown
                 library.options[args.flag] = {
                     type = "keybind",
@@ -457,7 +478,7 @@ function library:addTab(name)
                     skipflag = args.skipflag,
                     oldargs = args
                 }
-
+                --
                 updateValue(args.key or Enum.KeyCode.Unknown)
             end
             function toggle:addColorpicker(args)
@@ -481,11 +502,11 @@ function library:addTab(name)
                 local picker = Instance.new("ImageLabel")
                 local clr = Instance.new("Frame")
                 local copy = Instance.new("TextButton")
-
+                --
                 library.multiZindex = library.multiZindex - 1
                 jigCount = jigCount - 1
                 topStuff = topStuff - 1 --args.second
-
+                --
                 colorpicker.Parent = toggleframe
                 colorpicker.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                 colorpicker.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -494,20 +515,20 @@ function library:addTab(name)
                     args.second and UDim2.new(0.720000029, 4, 0.272000015, 0) or
                     UDim2.new(0.860000014, 4, 0.272000015, 0)
                 colorpicker.Size = UDim2.new(0, 20, 0, 10)
-
+                --
                 mid.Name = "mid"
                 mid.Parent = colorpicker
                 mid.BackgroundColor3 = Color3.fromRGB(69, 23, 255)
                 mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                 mid.BorderSizePixel = 2
                 mid.Size = UDim2.new(1, 0, 1, 0)
-
+                --
                 front.Name = "front"
                 front.Parent = mid
                 front.BackgroundColor3 = library.libColor
                 front.BorderColor3 = Color3.fromRGB(0, 0, 0)
                 front.Size = UDim2.new(1, 0, 1, 0)
-
+                --
                 button2.Name = "button2"
                 button2.Parent = front
                 button2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -517,7 +538,7 @@ function library:addTab(name)
                 button2.Font = Enum.Font.SourceSans
                 button2.TextColor3 = Color3.fromRGB(0, 0, 0)
                 button2.TextSize = 14.000
-
+                --
                 colorFrame.Name = "colorFrame"
                 colorFrame.Parent = toggleframe
                 colorFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -525,13 +546,13 @@ function library:addTab(name)
                 colorFrame.BorderSizePixel = 2
                 colorFrame.Position = UDim2.new(0.101092957, 0, 0.75, 0)
                 colorFrame.Size = UDim2.new(0, 137, 0, 128)
-
+                --
                 colorFrame_2.Name = "colorFrame"
                 colorFrame_2.Parent = colorFrame
                 colorFrame_2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
                 colorFrame_2.BorderColor3 = Color3.fromRGB(60, 60, 60)
                 colorFrame_2.Size = UDim2.new(1, 0, 1, 0)
-
+                --
                 hueframe.Name = "hueframe"
                 hueframe.Parent = colorFrame_2
                 hueframe.Parent = colorFrame_2
@@ -540,14 +561,14 @@ function library:addTab(name)
                 hueframe.BorderSizePixel = 2
                 hueframe.Position = UDim2.new(-0.0930000022, 18, -0.0599999987, 30)
                 hueframe.Size = UDim2.new(0, 100, 0, 100)
-
+                --
                 main.Name = "main"
                 main.Parent = hueframe
                 main.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
                 main.BorderColor3 = Color3.fromRGB(0, 0, 0)
                 main.Size = UDim2.new(0, 100, 0, 100)
                 main.ZIndex = 6
-
+                --
                 picker.Name = "picker"
                 picker.Parent = main
                 picker.BackgroundColor3 = Color3.fromRGB(232, 0, 255)
@@ -556,7 +577,7 @@ function library:addTab(name)
                 picker.Size = UDim2.new(0, 100, 0, 100)
                 picker.ZIndex = 104
                 picker.Image = "rbxassetid://2615689005"
-
+                --
                 pickerframe.Name = "pickerframe"
                 pickerframe.Parent = colorFrame
                 pickerframe.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
@@ -564,14 +585,14 @@ function library:addTab(name)
                 pickerframe.BorderSizePixel = 2
                 pickerframe.Position = UDim2.new(0.711000025, 14, -0.0599999987, 30)
                 pickerframe.Size = UDim2.new(0, 20, 0, 100)
-
+                --
                 main_2.Name = "main"
                 main_2.Parent = pickerframe
                 main_2.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
                 main_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
                 main_2.Size = UDim2.new(0, 20, 0, 100)
                 main_2.ZIndex = 6
-
+                --
                 hue.Name = "hue"
                 hue.Parent = main_2
                 hue.BackgroundColor3 = Color3.fromRGB(255, 0, 178)
@@ -580,7 +601,7 @@ function library:addTab(name)
                 hue.Size = UDim2.new(0, 20, 0, 100)
                 hue.ZIndex = 104
                 hue.Image = "rbxassetid://2615692420"
-
+                --
                 clr.Name = "clr"
                 clr.Parent = colorFrame
                 clr.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -590,7 +611,7 @@ function library:addTab(name)
                 clr.Position = UDim2.new(0.0280000009, 0, 0, 2)
                 clr.Size = UDim2.new(0, 129, 0, 14)
                 clr.ZIndex = 5
-
+                --
                 copy.Name = "copy"
                 copy.Parent = clr
                 copy.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
@@ -603,32 +624,32 @@ function library:addTab(name)
                 copy.TextColor3 = Color3.fromRGB(100, 100, 100)
                 copy.TextSize = 14.000
                 copy.TextStrokeTransparency = 0.000
-
-                copy.MouseButton1Click:Connect(
+                --
+                Connections[#Connections + 1] = copy.MouseButton1Click:Connect(
                     function()
                         -- "  "..args.text or "  "..args.flag
                         colorFrame.Visible = false
                     end
                 )
-
-                button2.MouseButton1Click:Connect(
+                --
+                Connections[#Connections + 1] = button2.MouseButton1Click:Connect(
                     function()
                         colorFrame.Visible = not colorFrame.Visible
                         mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                     end
                 )
-
-                button2.MouseEnter:connect(
+                --
+                Connections[#Connections + 1] = button2.MouseEnter:connect(
                     function()
                         mid.BorderColor3 = library.libColor
                     end
                 )
-                button2.MouseLeave:connect(
+                Connections[#Connections + 1] = button2.MouseLeave:connect(
                     function()
                         mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                     end
                 )
-
+                --
                 local function updateValue(value, fakevalue)
                     if typeof(value) == "table" then
                         value = fakevalue
@@ -639,7 +660,7 @@ function library:addTab(name)
                         args.callback(value)
                     end
                 end
-
+                --
                 local white, black = Color3.new(1, 1, 1), Color3.new(0, 0, 0)
                 local colors = {
                     Color3.new(1, 0, 0),
@@ -651,14 +672,13 @@ function library:addTab(name)
                     Color3.new(1, 0, 0)
                 }
                 local heartbeat = game:GetService("RunService").Heartbeat
-
+                --
                 local pickerX, pickerY, hueY = 0, 0, 0
                 local oldpercentX, oldpercentY = 0, 0
-
-                hue.MouseEnter:Connect(
+                --
+                Connections[#Connections + 1] = hue.MouseEnter:Connect(
                     function()
-                        local input =
-                            hue.InputBegan:connect(
+                        local input = hue.InputBegan:connect(
                             function(key)
                                 if key.UserInputType == Enum.UserInputType.MouseButton1 then
                                     while heartbeat:wait() and
@@ -679,6 +699,7 @@ function library:addTab(name)
                                 end
                             end
                         )
+                        Connections[#Connections + 1] = input
                         local leave
                         leave =
                             hue.MouseLeave:connect(
@@ -687,10 +708,11 @@ function library:addTab(name)
                                 leave:disconnect()
                             end
                         )
+                        Connections[#Connections + 1] = leave
                     end
                 )
-
-                picker.MouseEnter:Connect(
+                --
+                Connections[#Connections + 1] = picker.MouseEnter:Connect(
                     function()
                         local input =
                             picker.InputBegan:connect(
@@ -711,6 +733,7 @@ function library:addTab(name)
                                 end
                             end
                         )
+                        Connections[#Connections + 1] = input
                         local leave
                         leave =
                             picker.MouseLeave:connect(
@@ -719,21 +742,22 @@ function library:addTab(name)
                                 leave:disconnect()
                             end
                         )
+                        Connections[#Connections + 1] = leave
                     end
                 )
-
-                hue.MouseMoved:connect(
+                --
+                Connections[#Connections + 1] = hue.MouseMoved:connect(
                     function(_, y)
                         hueY = y
                     end
                 )
-
-                picker.MouseMoved:connect(
+                --
+                Connections[#Connections + 1] = picker.MouseMoved:connect(
                     function(x, y)
                         pickerX, pickerY = x, y
                     end
                 )
-
+                --
                 table.insert(library.toInvis, colorFrame)
                 library.flags[args.flag] = Color3.new(1, 1, 1)
                 library.options[args.flag] = {
@@ -742,7 +766,7 @@ function library:addTab(name)
                     skipflag = args.skipflag,
                     oldargs = args
                 }
-
+                --
                 updateValue(args.color or Color3.new(1, 1, 1))
             end
             return toggle
@@ -752,20 +776,20 @@ function library:addTab(name)
                 return warn("⚠️ incorrect arguments ⚠️")
             end
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 22)
-
+            --
             local buttonframe = Instance.new("Frame")
             local bg = Instance.new("Frame")
             local main = Instance.new("Frame")
             local button = Instance.new("TextButton")
             local gradient = Instance.new("UIGradient")
-
+            --
             buttonframe.Name = "buttonframe"
             buttonframe.Parent = grouper
             buttonframe.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             buttonframe.BackgroundTransparency = 1.000
             buttonframe.BorderSizePixel = 0
             buttonframe.Size = UDim2.new(1, 0, 0, 21)
-
+            --
             bg.Name = "bg"
             bg.Parent = buttonframe
             bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -773,13 +797,13 @@ function library:addTab(name)
             bg.BorderSizePixel = 2
             bg.Position = UDim2.new(0.02, -1, 0, 0)
             bg.Size = UDim2.new(0, 205, 0, 15)
-
+            --
             main.Name = "main"
             main.Parent = bg
             main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             main.BorderColor3 = Color3.fromRGB(60, 60, 60)
             main.Size = UDim2.new(1, 0, 1, 0)
-
+            --
             button.Name = "button"
             button.Parent = main
             button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -791,7 +815,7 @@ function library:addTab(name)
             button.TextColor3 = Color3.fromRGB(255, 255, 255)
             button.TextSize = 13.000
             button.TextStrokeTransparency = 0.000
-
+            --
             gradient.Color =
                 ColorSequence.new {
                 ColorSequenceKeypoint.new(0.00, Color3.fromRGB(105, 105, 105)),
@@ -800,20 +824,20 @@ function library:addTab(name)
             gradient.Rotation = 90
             gradient.Name = "gradient"
             gradient.Parent = main
-
-            button.MouseButton1Click:Connect(
+            --
+            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     if not library.colorpicking then
                         args.callback()
                     end
                 end
             )
-            button.MouseEnter:connect(
+            Connections[#Connections + 1] = button.MouseEnter:connect(
                 function()
                     main.BorderColor3 = library.libColor
                 end
             )
-            button.MouseLeave:connect(
+            Connections[#Connections + 1] = button.MouseLeave:connect(
                 function()
                     main.BorderColor3 = Color3.fromRGB(60, 60, 60)
                 end
@@ -824,7 +848,7 @@ function library:addTab(name)
                 return warn("⚠️ incorrect arguments ⚠️")
             end
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 30)
-
+            --
             local slider = Instance.new("Frame")
             local bg = Instance.new("Frame")
             local main = Instance.new("Frame")
@@ -833,14 +857,14 @@ function library:addTab(name)
             local valuetext = Instance.new("TextLabel")
             local UIGradient = Instance.new("UIGradient")
             local text = Instance.new("TextLabel")
-
+            --
             slider.Name = "slider"
             slider.Parent = grouper
             slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             slider.BackgroundTransparency = 1.000
             slider.BorderSizePixel = 0
             slider.Size = UDim2.new(1, 0, 0, 30)
-
+            --
             bg.Name = "bg"
             bg.Parent = slider
             bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -848,13 +872,13 @@ function library:addTab(name)
             bg.BorderSizePixel = 2
             bg.Position = UDim2.new(0.02, -1, 0, 16)
             bg.Size = UDim2.new(0, 205, 0, 10)
-
+            --
             main.Name = "main"
             main.Parent = bg
             main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             main.BorderColor3 = Color3.fromRGB(50, 50, 50)
             main.Size = UDim2.new(1, 0, 1, 0)
-
+            --
             fill.Name = "fill"
             fill.Parent = main
             fill.BackgroundColor3 = library.libColor
@@ -862,7 +886,7 @@ function library:addTab(name)
             fill.BorderColor3 = Color3.fromRGB(60, 60, 60)
             fill.BorderSizePixel = 0
             fill.Size = UDim2.new(0.617238641, 13, 1, 0)
-
+            --
             button.Name = "button"
             button.Parent = main
             button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -872,7 +896,7 @@ function library:addTab(name)
             button.Text = ""
             button.TextColor3 = Color3.fromRGB(0, 0, 0)
             button.TextSize = 14.000
-
+            --
             valuetext.Parent = main
             valuetext.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             valuetext.BackgroundTransparency = 1.000
@@ -882,7 +906,7 @@ function library:addTab(name)
             valuetext.TextColor3 = Color3.fromRGB(255, 255, 255)
             valuetext.TextSize = 14.000
             valuetext.TextStrokeTransparency = 0.000
-
+            --
             UIGradient.Color =
                 ColorSequence.new {
                 ColorSequenceKeypoint.new(0.00, Color3.fromRGB(105, 105, 105)),
@@ -890,7 +914,7 @@ function library:addTab(name)
             }
             UIGradient.Rotation = 90
             UIGradient.Parent = main
-
+            --
             text.Name = "text"
             text.Parent = slider
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -903,11 +927,11 @@ function library:addTab(name)
             text.TextSize = 13.000
             text.TextStrokeTransparency = 0.000
             text.TextXAlignment = Enum.TextXAlignment.Left
-
+            --
             local entered = false
             local scrolling = false
             local amount = 0
-
+            --
             local function updateValue(value)
                 if library.colorpicking then
                     return
@@ -976,7 +1000,7 @@ function library:addTab(name)
                     end
                 end
             )
-            button.MouseLeave:connect(
+            Connections[#Connections + 1] = button.MouseLeave:connect(
                 function()
                     entered = false
                     main.BorderColor3 = Color3.fromRGB(60, 60, 60)
@@ -999,15 +1023,15 @@ function library:addTab(name)
                 return warn("⚠️ incorrect arguments ⚠️")
             end
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 35)
-
+            --
             local textbox = Instance.new("Frame")
             local bg = Instance.new("Frame")
             local main = Instance.new("ScrollingFrame")
             local box = Instance.new("TextBox")
             local gradient = Instance.new("UIGradient")
             local text = Instance.new("TextLabel")
-
-            box:GetPropertyChangedSignal("Text"):Connect(
+            --
+            Connections[#Connections + 1] = box:GetPropertyChangedSignal("Text"):Connect(
                 function(val)
                     if library.colorpicking then
                         return
@@ -1026,7 +1050,7 @@ function library:addTab(name)
             textbox.BorderSizePixel = 0
             textbox.Size = UDim2.new(1, 0, 0, 35)
             textbox.ZIndex = 10
-
+            --
             bg.Name = "bg"
             bg.Parent = textbox
             bg.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
@@ -1034,7 +1058,7 @@ function library:addTab(name)
             bg.BorderSizePixel = 2
             bg.Position = UDim2.new(0.02, -1, 0, 16)
             bg.Size = UDim2.new(0, 205, 0, 15)
-
+            --
             main.Name = "main"
             main.Parent = bg
             main.Active = true
@@ -1043,7 +1067,7 @@ function library:addTab(name)
             main.Size = UDim2.new(1, 0, 1, 0)
             main.CanvasSize = UDim2.new(0, 0, 0, 0)
             main.ScrollBarThickness = 0
-
+            --
             box.Name = "box"
             box.Parent = main
             box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1056,7 +1080,7 @@ function library:addTab(name)
             box.TextSize = 13.000
             box.TextStrokeTransparency = 0.000
             box.TextXAlignment = Enum.TextXAlignment.Left
-
+            --
             gradient.Color =
                 ColorSequence.new {
                 ColorSequenceKeypoint.new(0.00, Color3.fromRGB(105, 105, 105)),
@@ -1065,7 +1089,7 @@ function library:addTab(name)
             gradient.Rotation = 90
             gradient.Name = "gradient"
             gradient.Parent = main
-
+            --
             text.Name = "text"
             text.Parent = textbox
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1078,7 +1102,7 @@ function library:addTab(name)
             text.TextSize = 13.000
             text.TextStrokeTransparency = 0.000
             text.TextXAlignment = Enum.TextXAlignment.Left
-
+            --
             library.flags[args.flag] = args.value or ""
             library.options[args.flag] = {
                 type = "textbox",
@@ -1091,11 +1115,11 @@ function library:addTab(name)
         end
         function group:addDivider(args)
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 10)
-
+            --
             local div = Instance.new("Frame")
             local bg = Instance.new("Frame")
             local main = Instance.new("Frame")
-
+            --
             div.Name = "div"
             div.Parent = grouper
             div.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1103,7 +1127,7 @@ function library:addTab(name)
             div.BorderSizePixel = 0
             div.Position = UDim2.new(0, 0, 0.743662, 0)
             div.Size = UDim2.new(0, 202, 0, 10)
-
+            --
             bg.Name = "bg"
             bg.Parent = div
             bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -1111,7 +1135,7 @@ function library:addTab(name)
             bg.BorderSizePixel = 2
             bg.Position = UDim2.new(0.02, 0, 0, 4)
             bg.Size = UDim2.new(0, 191, 0, 1)
-
+            --
             main.Name = "main"
             main.Parent = bg
             main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -1123,10 +1147,10 @@ function library:addTab(name)
                 return warn("⚠️ incorrect arguments ⚠️")
             end
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 35)
-
+            --
             --args.multiselect and "..." or ""
             library.multiZindex = library.multiZindex - 1
-
+            --
             local list = Instance.new("Frame")
             local bg = Instance.new("Frame")
             local main = Instance.new("ScrollingFrame")
@@ -1135,11 +1159,11 @@ function library:addTab(name)
             local valuetext = Instance.new("TextLabel")
             local gradient = Instance.new("UIGradient")
             local text = Instance.new("TextLabel")
-
+            --
             local frame = Instance.new("Frame")
             local holder = Instance.new("Frame")
             local UIListLayout = Instance.new("UIListLayout")
-
+            --
             list.Name = "list"
             list.Parent = grouper
             list.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1147,7 +1171,7 @@ function library:addTab(name)
             list.BorderSizePixel = 0
             list.Size = UDim2.new(1, 0, 0, 35)
             list.ZIndex = library.multiZindex
-
+            --
             bg.Name = "bg"
             bg.Parent = list
             bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -1155,7 +1179,7 @@ function library:addTab(name)
             bg.BorderSizePixel = 2
             bg.Position = UDim2.new(0.02, -1, 0, 16)
             bg.Size = UDim2.new(0, 205, 0, 15)
-
+            --
             main.Name = "main"
             main.Parent = bg
             main.Active = true
@@ -1164,7 +1188,7 @@ function library:addTab(name)
             main.Size = UDim2.new(1, 0, 1, 0)
             main.CanvasSize = UDim2.new(0, 0, 0, 0)
             main.ScrollBarThickness = 0
-
+            --
             button.Name = "button"
             button.Parent = main
             button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1174,7 +1198,7 @@ function library:addTab(name)
             button.Text = ""
             button.TextColor3 = Color3.fromRGB(0, 0, 0)
             button.TextSize = 14.000
-
+            --
             dumbtriangle.Name = "dumbtriangle"
             dumbtriangle.Parent = main
             dumbtriangle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -1185,7 +1209,7 @@ function library:addTab(name)
             dumbtriangle.Size = UDim2.new(0, 7, 0, 6)
             dumbtriangle.ZIndex = 3
             dumbtriangle.Image = "rbxassetid://8532000591"
-
+            --
             valuetext.Name = "valuetext"
             valuetext.Parent = main
             valuetext.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1198,7 +1222,7 @@ function library:addTab(name)
             valuetext.TextSize = 13.000
             valuetext.TextStrokeTransparency = 0.000
             valuetext.TextXAlignment = Enum.TextXAlignment.Left
-
+            --
             gradient.Color =
                 ColorSequence.new {
                 ColorSequenceKeypoint.new(0.00, Color3.fromRGB(105, 105, 105)),
@@ -1207,7 +1231,7 @@ function library:addTab(name)
             gradient.Rotation = 90
             gradient.Name = "gradient"
             gradient.Parent = main
-
+            --
             text.Name = "text"
             text.Parent = list
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1220,7 +1244,7 @@ function library:addTab(name)
             text.TextSize = 13.000
             text.TextStrokeTransparency = 0.000
             text.TextXAlignment = Enum.TextXAlignment.Left
-
+            --
             frame.Name = "frame"
             frame.Parent = list
             frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -1230,16 +1254,16 @@ function library:addTab(name)
             frame.Size = UDim2.new(0, 203, 0, 0)
             frame.Visible = false
             frame.ZIndex = library.multiZindex
-
+            --
             holder.Name = "holder"
             holder.Parent = frame
             holder.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             holder.BorderColor3 = Color3.fromRGB(60, 60, 60)
             holder.Size = UDim2.new(1, 0, 1, 0)
-
+            --
             UIListLayout.Parent = holder
             UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
+            --
             local function updateValue(value)
                 if value == nil then
                     valuetext.Text = "nil"
@@ -1308,7 +1332,7 @@ function library:addTab(name)
                     end
                 end
             end
-
+            --
             function refresh(tbl)
                 for i, v in next, holder:GetChildren() do
                     if v.ClassName == "Frame" then
@@ -1318,17 +1342,17 @@ function library:addTab(name)
                 end
                 for i, v in pairs(tbl) do
                     frame.Size = frame.Size + UDim2.new(0, 0, 0, 20)
-
+                    --
                     local option = Instance.new("Frame")
                     local button_2 = Instance.new("TextButton")
                     local text_2 = Instance.new("TextLabel")
-
+                    --
                     option.Name = v
                     option.Parent = holder
                     option.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                     option.BackgroundTransparency = 1.000
                     option.Size = UDim2.new(1, 0, 0, 20)
-
+                    --
                     button_2.Name = "button"
                     button_2.Parent = option
                     button_2.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -1339,7 +1363,7 @@ function library:addTab(name)
                     button_2.Text = ""
                     button_2.TextColor3 = Color3.fromRGB(0, 0, 0)
                     button_2.TextSize = 14.000
-
+                    --
                     text_2.Name = "off"
                     text_2.Parent = option
                     text_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1352,7 +1376,7 @@ function library:addTab(name)
                     text_2.TextSize = 14.000
                     text_2.TextStrokeTransparency = 0.000
                     text_2.TextXAlignment = Enum.TextXAlignment.Left
-
+                    --
                     button_2.MouseButton1Click:Connect(
                         function()
                             updateValue(v)
@@ -1365,25 +1389,25 @@ function library:addTab(name)
                         library.options[args.flag].values[1]
                 )
             end
-
-            button.MouseButton1Click:Connect(
+            --
+            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     if not library.colorpicking then
                         frame.Visible = not frame.Visible
                     end
                 end
             )
-            button.MouseEnter:connect(
+            Connections[#Connections + 1] = button.MouseEnter:connect(
                 function()
                     main.BorderColor3 = library.libColor
                 end
             )
-            button.MouseLeave:connect(
+            Connections[#Connections + 1] = button.MouseLeave:connect(
                 function()
                     main.BorderColor3 = Color3.fromRGB(60, 60, 60)
                 end
             )
-
+            --
             table.insert(library.toInvis, frame)
             library.flags[args.flag] = args.multiselect and {} or ""
             library.options[args.flag] = {
@@ -1394,7 +1418,7 @@ function library:addTab(name)
                 skipflag = args.skipflag,
                 oldargs = args
             }
-
+            --
             refresh(args.values)
             updateValue(args.value or not args.multiselect and args.values[1] or "abcdefghijklmnopqrstuwvxyz")
         end
@@ -1404,7 +1428,7 @@ function library:addTab(name)
             end
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 138)
             library.multiZindex = library.multiZindex - 1
-
+            --
             local list2 = Instance.new("Frame")
             local frame = Instance.new("Frame")
             local main = Instance.new("Frame")
@@ -1412,7 +1436,7 @@ function library:addTab(name)
             local UIListLayout = Instance.new("UIListLayout")
             local dwn = Instance.new("ImageLabel")
             local up = Instance.new("ImageLabel")
-
+            --
             list2.Name = "list2"
             list2.Parent = grouper
             list2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1420,7 +1444,7 @@ function library:addTab(name)
             list2.BorderSizePixel = 0
             list2.Position = UDim2.new(0, 0, 0.108108111, 0)
             list2.Size = UDim2.new(1, 0, 0, 138)
-
+            --
             frame.Name = "frame"
             frame.Parent = list2
             frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -1428,13 +1452,13 @@ function library:addTab(name)
             frame.BorderSizePixel = 2
             frame.Position = UDim2.new(0.02, -1, 0.0439999998, 0)
             frame.Size = UDim2.new(0, 205, 0, 128)
-
+            --
             main.Name = "main"
             main.Parent = frame
             main.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             main.BorderColor3 = Color3.fromRGB(30, 30, 30)
             main.Size = UDim2.new(1, 0, 1, 0)
-
+            --
             holder.Name = "holder"
             holder.Parent = main
             holder.Active = true
@@ -1450,9 +1474,9 @@ function library:addTab(name)
             holder.AutomaticCanvasSize = Enum.AutomaticSize.Y
             holder.ScrollingEnabled = true
             holder.ScrollBarImageTransparency = 0
-
+            --
             UIListLayout.Parent = holder
-
+            --
             dwn.Name = "dwn"
             dwn.Parent = frame
             dwn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -1464,7 +1488,7 @@ function library:addTab(name)
             dwn.ZIndex = 3
             dwn.Image = "rbxassetid://8548723563"
             dwn.Visible = false
-
+            --
             up.Name = "up"
             up.Parent = frame
             up.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -1476,7 +1500,7 @@ function library:addTab(name)
             up.ZIndex = 3
             up.Image = "rbxassetid://8548757311"
             up.Visible = false
-
+            --
             local function updateValue(value)
                 if value == nil then
                     return
@@ -1485,7 +1509,7 @@ function library:addTab(name)
                     value = library.options[args.flag].values[1]
                 end
                 library.flags[args.flag] = value
-
+                --
                 for i, v in next, holder:GetChildren() do
                     if v.ClassName ~= "Frame" then
                         continue
@@ -1503,13 +1527,13 @@ function library:addTab(name)
                 end
                 holder.Visible = true
             end
-            holder:GetPropertyChangedSignal("CanvasPosition"):Connect(
+            Connections[#Connections + 1] = holder:GetPropertyChangedSignal("CanvasPosition"):Connect(
                 function()
                     up.Visible = (holder.CanvasPosition.Y > 1)
                     dwn.Visible = (holder.CanvasPosition.Y + 1 < (holder.AbsoluteCanvasSize.Y - holder.AbsoluteSize.Y))
                 end
             )
-
+            --
             function refresh(tbl)
                 for i, v in next, holder:GetChildren() do
                     if v.ClassName == "Frame" then
@@ -1520,7 +1544,7 @@ function library:addTab(name)
                     local item = Instance.new("Frame")
                     local button = Instance.new("TextButton")
                     local text = Instance.new("TextLabel")
-
+                    --
                     item.Name = v
                     item.Parent = holder
                     item.Active = true
@@ -1529,7 +1553,7 @@ function library:addTab(name)
                     item.BorderColor3 = Color3.fromRGB(0, 0, 0)
                     item.BorderSizePixel = 0
                     item.Size = UDim2.new(1, 0, 0, 18)
-
+                    --
                     button.Parent = item
                     button.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
                     button.BackgroundTransparency = 1
@@ -1538,7 +1562,7 @@ function library:addTab(name)
                     button.Size = UDim2.new(1, 0, 1, 0)
                     button.Text = ""
                     button.TextTransparency = 1.000
-
+                    --
                     text.Name = "text"
                     text.Parent = item
                     text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1549,14 +1573,14 @@ function library:addTab(name)
                     text.TextColor3 = Color3.fromRGB(255, 255, 255)
                     text.TextSize = 14.000
                     text.TextStrokeTransparency = 0.000
-
-                    button.MouseButton1Click:Connect(
+                    --
+                    Connections[#Connections + 1] = button.MouseButton1Click:Connect(
                         function()
                             updateValue(v)
                         end
                     )
                 end
-
+                --
                 holder.Visible = true
                 library.options[args.flag].values = tbl
                 updateValue(
@@ -1564,7 +1588,7 @@ function library:addTab(name)
                         library.options[args.flag].values[1]
                 )
             end
-
+            --
             library.flags[args.flag] = ""
             library.options[args.flag] = {
                 type = "cfg",
@@ -1574,7 +1598,7 @@ function library:addTab(name)
                 skipflag = args.skipflag,
                 oldargs = args
             }
-
+            --
             refresh(args.values)
             updateValue(args.value or not args.multiselect and args.values[1] or "abcdefghijklmnopqrstuwvxyz")
         end
@@ -1583,11 +1607,11 @@ function library:addTab(name)
                 return warn("⚠️ incorrect arguments ⚠️")
             end
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 20)
-
+            --
             library.multiZindex = library.multiZindex - 1
             jigCount = jigCount - 1
             topStuff = topStuff - 1
-
+            --
             local colorpicker = Instance.new("Frame")
             local back = Instance.new("Frame")
             local mid = Instance.new("Frame")
@@ -1595,7 +1619,7 @@ function library:addTab(name)
             local text = Instance.new("TextLabel")
             local colorpicker_2 = Instance.new("Frame")
             local button = Instance.new("TextButton")
-
+            --
             local colorFrame = Instance.new("Frame")
             local colorFrame_2 = Instance.new("Frame")
             local hueframe = Instance.new("Frame")
@@ -1606,7 +1630,7 @@ function library:addTab(name)
             local picker = Instance.new("ImageLabel")
             local clr = Instance.new("Frame")
             local copy = Instance.new("TextButton")
-
+            --
             colorpicker.Name = "colorpicker"
             colorpicker.Parent = grouper
             colorpicker.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1614,7 +1638,7 @@ function library:addTab(name)
             colorpicker.BorderSizePixel = 0
             colorpicker.Size = UDim2.new(1, 0, 0, 20)
             colorpicker.ZIndex = topStuff
-
+            --
             text.Name = "text"
             text.Parent = colorpicker
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1626,7 +1650,7 @@ function library:addTab(name)
             text.TextSize = 13.000
             text.TextStrokeTransparency = 0.000
             text.TextXAlignment = Enum.TextXAlignment.Left
-
+            --
             button.Name = "button"
             button.Parent = colorpicker
             button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1637,7 +1661,7 @@ function library:addTab(name)
             button.Text = ""
             button.TextColor3 = Color3.fromRGB(0, 0, 0)
             button.TextSize = 14.000
-
+            --
             colorpicker_2.Name = "colorpicker"
             colorpicker_2.Parent = colorpicker
             colorpicker_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1645,20 +1669,20 @@ function library:addTab(name)
             colorpicker_2.BorderSizePixel = 3
             colorpicker_2.Position = UDim2.new(0.860000014, 4, 0.272000015, 0)
             colorpicker_2.Size = UDim2.new(0, 20, 0, 10)
-
+            --
             mid.Name = "mid"
             mid.Parent = colorpicker_2
             mid.BackgroundColor3 = Color3.fromRGB(69, 23, 255)
             mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
             mid.BorderSizePixel = 2
             mid.Size = UDim2.new(1, 0, 1, 0)
-
+            --
             front.Name = "front"
             front.Parent = mid
             front.BackgroundColor3 = library.libColor
             front.BorderColor3 = Color3.fromRGB(0, 0, 0)
             front.Size = UDim2.new(1, 0, 1, 0)
-
+            --
             button.Name = "button"
             button.Parent = colorpicker
             button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1669,7 +1693,7 @@ function library:addTab(name)
             button.ZIndex = args.ontop and topStuff or jigCount
             button.TextColor3 = Color3.fromRGB(0, 0, 0)
             button.TextSize = 14.000
-
+            --
             colorFrame.Name = "colorFrame"
             colorFrame.Parent = colorpicker
             colorFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -1677,13 +1701,13 @@ function library:addTab(name)
             colorFrame.BorderSizePixel = 2
             colorFrame.Position = UDim2.new(0.101092957, 0, 0.75, 0)
             colorFrame.Size = UDim2.new(0, 137, 0, 128)
-
+            --
             colorFrame_2.Name = "colorFrame"
             colorFrame_2.Parent = colorFrame
             colorFrame_2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
             colorFrame_2.BorderColor3 = Color3.fromRGB(60, 60, 60)
             colorFrame_2.Size = UDim2.new(1, 0, 1, 0)
-
+            --
             hueframe.Name = "hueframe"
             hueframe.Parent = colorFrame_2
             hueframe.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
@@ -1691,14 +1715,14 @@ function library:addTab(name)
             hueframe.BorderSizePixel = 2
             hueframe.Position = UDim2.new(-0.0930000022, 18, -0.0599999987, 30)
             hueframe.Size = UDim2.new(0, 100, 0, 100)
-
+            --
             main.Name = "main"
             main.Parent = hueframe
             main.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             main.BorderColor3 = Color3.fromRGB(0, 0, 0)
             main.Size = UDim2.new(0, 100, 0, 100)
             main.ZIndex = 6
-
+            --
             picker.Name = "picker"
             picker.Parent = main
             picker.BackgroundColor3 = Color3.fromRGB(232, 0, 255)
@@ -1707,7 +1731,7 @@ function library:addTab(name)
             picker.Size = UDim2.new(0, 100, 0, 100)
             picker.ZIndex = 104
             picker.Image = "rbxassetid://2615689005"
-
+            --
             pickerframe.Name = "pickerframe"
             pickerframe.Parent = colorFrame
             pickerframe.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
@@ -1715,14 +1739,14 @@ function library:addTab(name)
             pickerframe.BorderSizePixel = 2
             pickerframe.Position = UDim2.new(0.711000025, 14, -0.0599999987, 30)
             pickerframe.Size = UDim2.new(0, 20, 0, 100)
-
+            --
             main_2.Name = "main"
             main_2.Parent = pickerframe
             main_2.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             main_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
             main_2.Size = UDim2.new(0, 20, 0, 100)
             main_2.ZIndex = 6
-
+            --
             hue.Name = "hue"
             hue.Parent = main_2
             hue.BackgroundColor3 = Color3.fromRGB(255, 0, 178)
@@ -1731,7 +1755,7 @@ function library:addTab(name)
             hue.Size = UDim2.new(0, 20, 0, 100)
             hue.ZIndex = 104
             hue.Image = "rbxassetid://2615692420"
-
+            --
             clr.Name = "clr"
             clr.Parent = colorFrame
             clr.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -1741,7 +1765,7 @@ function library:addTab(name)
             clr.Position = UDim2.new(0.0280000009, 0, 0, 2)
             clr.Size = UDim2.new(0, 129, 0, 14)
             clr.ZIndex = 5
-
+            --
             copy.Name = "copy"
             copy.Parent = clr
             copy.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
@@ -1754,31 +1778,31 @@ function library:addTab(name)
             copy.TextColor3 = Color3.fromRGB(100, 100, 100)
             copy.TextSize = 14.000
             copy.TextStrokeTransparency = 0.000
-
-            copy.MouseButton1Click:Connect(
+            --
+            Connections[#Connections + 1] = copy.MouseButton1Click:Connect(
                 function()
                     colorFrame.Visible = false
                 end
             )
-
-            button.MouseButton1Click:Connect(
+            --
+            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     colorFrame.Visible = not colorFrame.Visible
                     mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                 end
             )
-
-            button.MouseEnter:connect(
+            --
+            Connections[#Connections + 1] = button.MouseEnter:connect(
                 function()
                     mid.BorderColor3 = library.libColor
                 end
             )
-            button.MouseLeave:connect(
+            Connections[#Connections + 1] = button.MouseLeave:connect(
                 function()
                     mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                 end
             )
-
+            --
             local function updateValue(value, fakevalue)
                 if typeof(value) == "table" then
                     value = fakevalue
@@ -1789,7 +1813,7 @@ function library:addTab(name)
                     args.callback(value)
                 end
             end
-
+            --
             local white, black = Color3.new(1, 1, 1), Color3.new(0, 0, 0)
             local colors = {
                 Color3.new(1, 0, 0),
@@ -1801,11 +1825,11 @@ function library:addTab(name)
                 Color3.new(1, 0, 0)
             }
             local heartbeat = game:GetService("RunService").Heartbeat
-
+            --
             local pickerX, pickerY, hueY = 0, 0, 0
             local oldpercentX, oldpercentY = 0, 0
-
-            hue.MouseEnter:Connect(
+            --
+            Connections[#Connections + 1] = hue.MouseEnter:Connect(
                 function()
                     local input =
                         hue.InputBegan:connect(
@@ -1828,6 +1852,7 @@ function library:addTab(name)
                             end
                         end
                     )
+                    Connections[#Connections + 1] = input
                     local leave
                     leave =
                         hue.MouseLeave:connect(
@@ -1836,10 +1861,11 @@ function library:addTab(name)
                             leave:disconnect()
                         end
                     )
+                    Connections[#Connections + 1] = leave
                 end
             )
-
-            picker.MouseEnter:Connect(
+            --
+            Connections[#Connections + 1] = picker.MouseEnter:Connect(
                 function()
                     local input =
                         picker.InputBegan:connect(
@@ -1858,6 +1884,7 @@ function library:addTab(name)
                             end
                         end
                     )
+                    Connections[#Connections + 1] = input
                     local leave
                     leave =
                         picker.MouseLeave:connect(
@@ -1866,21 +1893,22 @@ function library:addTab(name)
                             leave:disconnect()
                         end
                     )
+                    Connections[#Connections + 1] = leave
                 end
             )
-
-            hue.MouseMoved:connect(
+            --
+            Connections[#Connections + 1] = hue.MouseMoved:connect(
                 function(_, y)
                     hueY = y
                 end
             )
-
-            picker.MouseMoved:connect(
+            --
+            Connections[#Connections + 1] = picker.MouseMoved:connect(
                 function(x, y)
                     pickerX, pickerY = x, y
                 end
             )
-
+            --
             table.insert(library.toInvis, colorFrame)
             library.flags[args.flag] = Color3.new(1, 1, 1)
             library.options[args.flag] = {
@@ -1889,7 +1917,7 @@ function library:addTab(name)
                 skipflag = args.skipflag,
                 oldargs = args
             }
-
+            --
             updateValue(args.color or Color3.new(1, 1, 1))
         end
         function group:addKeybind(args)
@@ -1898,17 +1926,17 @@ function library:addTab(name)
             end
             groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 20)
             local next = false
-
+            --
             local keybind = Instance.new("Frame")
             local text = Instance.new("TextLabel")
             local button = Instance.new("TextButton")
-
+            --
             keybind.Parent = grouper
             keybind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             keybind.BackgroundTransparency = 1.000
             keybind.BorderSizePixel = 0
             keybind.Size = UDim2.new(1, 0, 0, 20)
-
+            --
             text.Parent = keybind
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             text.BackgroundTransparency = 1.000
@@ -1919,7 +1947,7 @@ function library:addTab(name)
             text.TextSize = 13.000
             text.TextStrokeTransparency = 0.000
             text.TextXAlignment = Enum.TextXAlignment.Left
-
+            --
             button.Parent = keybind
             button.BackgroundColor3 = Color3.fromRGB(187, 131, 255)
             button.BackgroundTransparency = 1.000
@@ -1932,7 +1960,7 @@ function library:addTab(name)
             button.TextSize = 13.000
             button.TextStrokeTransparency = 0.000
             button.TextXAlignment = Enum.TextXAlignment.Right
-
+            --
             function updateValue(val)
                 if library.colorpicking then
                     return
@@ -1940,7 +1968,7 @@ function library:addTab(name)
                 library.flags[args.flag] = val
                 button.Text = keyNames[val] or val.Name
             end
-            inputService.InputBegan:Connect(
+            Connections[#Connections + 1] = inputService.InputBegan:Connect(
                 function(key)
                     local key = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
                     if next then
@@ -1956,8 +1984,8 @@ function library:addTab(name)
                     end
                 end
             )
-
-            button.MouseButton1Click:Connect(
+            --
+            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     if library.colorpicking then
                         return
@@ -1968,7 +1996,7 @@ function library:addTab(name)
                     next = true
                 end
             )
-
+            --
             library.flags[args.flag] = Enum.KeyCode.Unknown
             library.options[args.flag] = {
                 type = "keybind",
@@ -1976,14 +2004,14 @@ function library:addTab(name)
                 skipflag = args.skipflag,
                 oldargs = args
             }
-
+            --
             updateValue(args.key or Enum.KeyCode.Unknown)
         end
         return group, groupbox
     end
     return tab
 end
-
+--
 function contains(list, x)
     for _, v in pairs(list) do
         if v == x then
@@ -1992,11 +2020,11 @@ function contains(list, x)
     end
     return false
 end
-
+--
 if not isfolder(library.cheatname) then
     makefolder(library.cheatname)
 end
-
+--
 function library:createConfig()
     local name = library.flags["config_name"]
     if contains(library.options["selected_config"].values, name) then
@@ -2089,7 +2117,7 @@ function library:loadConfig()
     end
     library:notify("Succesfully loaded config " .. name .. "!")
 end
-
+--
 function library:refreshConfigs()
     local tbl = {}
     for i, v in next, listfiles(library.cheatname) do
@@ -2097,12 +2125,12 @@ function library:refreshConfigs()
     end
     library.options["selected_config"].refresh(tbl)
 end
-
+--
 function library:deleteConfig()
     if isfile(library.flags["selected_config"]) then
         delfile(library.flags["selected_config"])
         library:refreshConfigs()
     end
 end
-
+--
 return library
