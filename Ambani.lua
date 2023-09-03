@@ -2141,3 +2141,5 @@ function library:DeleteConfig()
         library:RefreshConfigs()
     end
 end
+--
+return library
