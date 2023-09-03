@@ -162,6 +162,7 @@ function library:addTab(name)
     newButton.Modal = true
     newButton.Visible = true
     newButton.text.Text = name
+    newButton.element.BackgroundColor3 = library.libColor
     newButton.MouseButton1Click:Connect(
         function()
             for i, v in next, library.tabs do
