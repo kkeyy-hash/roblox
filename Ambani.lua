@@ -499,7 +499,7 @@ function library:addTab(name)
 
                 front.Name = "front"
                 front.Parent = mid
-                front.BackgroundColor3 = Color3.fromRGB(240, 142, 214)
+                front.BackgroundColor3 = library.libColor
                 front.BorderColor3 = Color3.fromRGB(0, 0, 0)
                 front.Size = UDim2.new(1, 0, 1, 0)
 
@@ -1650,7 +1650,7 @@ function library:addTab(name)
 
             front.Name = "front"
             front.Parent = mid
-            front.BackgroundColor3 = Color3.fromRGB(240, 142, 214)
+            front.BackgroundColor3 = library.libColor
             front.BorderColor3 = Color3.fromRGB(0, 0, 0)
             front.Size = UDim2.new(1, 0, 1, 0)
 
