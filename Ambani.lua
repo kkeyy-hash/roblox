@@ -19,6 +19,7 @@ if getgenv().AmbaniLibrary then
     getgenv().AmbaniLibrary = nil
 end
 --
+local TextService = game:GetService("TextService")
 local inputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
@@ -28,7 +29,7 @@ local mouse = localPlayer:GetMouse()
 --
 local menu = game:GetObjects("rbxassetid://14663609034")[1] -- original: 12702460854
 menu.bg.Position = UDim2.new(0.5, -menu.bg.Size.X.Offset / 2, 0.5, -menu.bg.Size.Y.Offset / 2)
-menu.Parent = gethui and gethui() or game:GetService("CoreGui")
+menu.Parent = game:GetService("CoreGui")
 menu.bg.pre.Text = 'ambani<font color="#6fa2ff">.pub</font>'
 --
 local library = {
@@ -251,6 +252,7 @@ function library:addTab(name)
         UIListLayout.Parent = grouper
         UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
         UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		UIListLayout.Padding = UDim.new(0, 0)
         --
         UIPadding.Parent = grouper
         UIPadding.PaddingBottom = UDim.new(0, 4)
@@ -289,7 +291,7 @@ function library:addTab(name)
             if not args.flag then
                 return warn("⚠️ incorrect arguments ⚠️ - missing args on recent toggle")
             end
-            groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 20)
+            groupbox.Size = groupbox.Size + UDim2.new(0, 0, 0, 30)
             --
             local toggleframe = Instance.new("Frame")
             local tobble = Instance.new("Frame")
@@ -306,7 +308,7 @@ function library:addTab(name)
             toggleframe.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             toggleframe.BackgroundTransparency = 1.000
             toggleframe.BorderSizePixel = 0
-            toggleframe.Size = UDim2.new(1, 0, 0, 20)
+            toggleframe.Size = UDim2.new(1, 0, 0, 30)
             toggleframe.ZIndex = library.multiZindex
             --
             tobble.Name = "tobble"
@@ -335,7 +337,7 @@ function library:addTab(name)
             text.Parent = toggleframe
             text.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
             text.BackgroundTransparency = 1.000
-            text.Position = UDim2.new(0, 22, 0, 0)
+            text.Position = UDim2.new(0, 22, 0, -3)
             text.Size = UDim2.new(0, 0, 1, 2)
             text.Font = Enum.Font.Code
             text.Text = args.text or args.flag
@@ -419,17 +421,17 @@ function library:addTab(name)
                 keybind.BackgroundTransparency = 1.000
                 keybind.BorderColor3 = Color3.fromRGB(0, 0, 0)
                 keybind.BorderSizePixel = 0
-                keybind.Position = UDim2.new(0.720000029, 4, 0.272000015, 0)
+                keybind.Position = UDim2.new(0.720000029, 4, 0.272000015, -3)
                 keybind.Size = UDim2.new(0, 51, 0, 10)
                 --
                 button.Parent = keybind
                 button.BackgroundColor3 = Color3.fromRGB(187, 131, 255)
                 button.BackgroundTransparency = 1.000
                 button.BorderSizePixel = 0
-                button.Position = UDim2.new(-0.270902753, 0, 0, 0)
-                button.Size = UDim2.new(1.27090275, 0, 1, 0)
+                button.Position = UDim2.new(1, 2, 0, 0)
+                button.Size = UDim2.new(0, 0, 0, 0)
                 button.Font = Enum.Font.Code
-                button.Text = ""
+                button.Text = "..."
                 button.TextColor3 = Color3.fromRGB(155, 155, 155)
                 button.TextSize = 13.000
                 button.TextStrokeTransparency = 0.000
@@ -441,16 +443,18 @@ function library:addTab(name)
                     end
                     library.flags[args.flag] = val
                     button.Text = keyNames[val] or val.Name
+					button.Size = UDim2.new(0, -button.TextBounds.X - 3, 0, 15)
                 end
                 library.Connections[#library.Connections + 1] = inputService.InputBegan:Connect(
                     function(key)
-                        local key = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
+                        local key = (key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType) or (key.KeyCode == Enum.KeyCode.Backspace and Enum.KeyCode.Unknown) or key.KeyCode
                         if next then
                             if not table.find(library.blacklisted, key) then
                                 next = false
                                 library.flags[args.flag] = key
                                 button.Text = keyNames[key] or key.Name
                                 button.TextColor3 = Color3.fromRGB(155, 155, 155)
+								button.Size = UDim2.new(0, -button.TextBounds.X - 3, 0, 15)
                             end
                         end
                         if not next and key == library.flags[args.flag] and args.callback then
@@ -465,7 +469,7 @@ function library:addTab(name)
                             return
                         end
                         library.flags[args.flag] = Enum.KeyCode.Unknown
-                        button.Text = "--"
+                        button.Text = "..."
                         button.TextColor3 = library.libColor
                         next = true
                     end
@@ -795,8 +799,8 @@ function library:addTab(name)
             bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             bg.BorderColor3 = Color3.fromRGB(0, 0, 0)
             bg.BorderSizePixel = 2
-            bg.Position = UDim2.new(0.02, -1, 0, 0)
-            bg.Size = UDim2.new(0, 205, 0, 15)
+            bg.Position = UDim2.new(0.02, 1, 0, 0)
+            bg.Size = UDim2.new(0, 200, 0, 15)
             --
             main.Name = "main"
             main.Parent = bg
@@ -870,8 +874,8 @@ function library:addTab(name)
             bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             bg.BorderColor3 = Color3.fromRGB(0, 0, 0)
             bg.BorderSizePixel = 2
-            bg.Position = UDim2.new(0.02, -1, 0, 16)
-            bg.Size = UDim2.new(0, 205, 0, 10)
+            bg.Position = UDim2.new(0.02, 1, 0, 16)
+            bg.Size = UDim2.new(0, 200, 0, 10)
             --
             main.Name = "main"
             main.Parent = bg
@@ -919,7 +923,7 @@ function library:addTab(name)
             text.Parent = slider
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             text.BackgroundTransparency = 1.000
-            text.Position = UDim2.new(0.0299999993, -1, 0, 7)
+            text.Position = UDim2.new(0.0299999993, 0.5, 0, 7)
             text.ZIndex = 2
             text.Font = Enum.Font.Code
             text.Text = args.text or args.flag
@@ -1056,8 +1060,8 @@ function library:addTab(name)
             bg.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
             bg.BorderColor3 = Color3.fromRGB(0, 0, 0)
             bg.BorderSizePixel = 2
-            bg.Position = UDim2.new(0.02, -1, 0, 16)
-            bg.Size = UDim2.new(0, 205, 0, 15)
+            bg.Position = UDim2.new(0.02, 0, 0, 16)
+            bg.Size = UDim2.new(0, 200, 0, 15)
             --
             main.Name = "main"
             main.Parent = bg
@@ -1074,6 +1078,7 @@ function library:addTab(name)
             box.BackgroundTransparency = 1.000
             box.Selectable = false
             box.Size = UDim2.new(1, 0, 1, 0)
+			box.Position = UDim2.new(0, 5, 0, 0)
             box.Font = Enum.Font.Code
             box.Text = args.value or ""
             box.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1094,7 +1099,7 @@ function library:addTab(name)
             text.Parent = textbox
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             text.BackgroundTransparency = 1.000
-            text.Position = UDim2.new(0.0299999993, -1, 0, 7)
+            text.Position = UDim2.new(0.0299999993, 0.5, 0, 7)
             text.ZIndex = 2
             text.Font = Enum.Font.Code
             text.Text = args.text or args.flag
@@ -1177,8 +1182,8 @@ function library:addTab(name)
             bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             bg.BorderColor3 = Color3.fromRGB(0, 0, 0)
             bg.BorderSizePixel = 2
-            bg.Position = UDim2.new(0.02, -1, 0, 16)
-            bg.Size = UDim2.new(0, 205, 0, 15)
+            bg.Position = UDim2.new(0.02, 1, 0, 16)
+            bg.Size = UDim2.new(0, 200, 0, 15)
             --
             main.Name = "main"
             main.Parent = bg
@@ -1236,7 +1241,7 @@ function library:addTab(name)
             text.Parent = list
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             text.BackgroundTransparency = 1.000
-            text.Position = UDim2.new(0.0299999993, -1, 0, 7)
+            text.Position = UDim2.new(0.0299999993, 0.5, 0, 7)
             text.ZIndex = 2
             text.Font = Enum.Font.Code
             text.Text = args.text or args.flag
@@ -1253,13 +1258,14 @@ function library:addTab(name)
             frame.Position = UDim2.new(0.0299999993, -1, 0.605000019, 15)
             frame.Size = UDim2.new(0, 203, 0, 0)
             frame.Visible = false
-            frame.ZIndex = library.multiZindex
+            frame.ZIndex = args.ontop and 99999 or library.multiZindex
             --
             holder.Name = "holder"
             holder.Parent = frame
             holder.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             holder.BorderColor3 = Color3.fromRGB(60, 60, 60)
             holder.Size = UDim2.new(1, 0, 1, 0)
+			holder.ZIndex = 99999999
             --
             UIListLayout.Parent = holder
             UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1637,13 +1643,13 @@ function library:addTab(name)
             colorpicker.BackgroundTransparency = 1.000
             colorpicker.BorderSizePixel = 0
             colorpicker.Size = UDim2.new(1, 0, 0, 20)
-            colorpicker.ZIndex = topStuff
+            colorpicker.ZIndex = 1
             --
             text.Name = "text"
             text.Parent = colorpicker
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             text.BackgroundTransparency = 1.000
-            text.Position = UDim2.new(0.02, -1, 0, 10)
+            text.Position = UDim2.new(0.02, 2, 0, 10)
             text.Font = Enum.Font.Code
             text.Text = args.text or args.flag
             text.TextColor3 = Color3.fromRGB(244, 244, 244)
@@ -1771,7 +1777,8 @@ function library:addTab(name)
             copy.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             copy.BackgroundTransparency = 1.000
             copy.BorderSizePixel = 0
-            copy.Size = UDim2.new(0, 129, 0, 14)
+            copy.Size = UDim2.new(0, 125, 0, 14)
+			copy.Position = UDim2.new(0, 5, 0, 0)
             copy.ZIndex = 5
             copy.Font = Enum.Font.Code
             copy.Text = args.text or args.flag
@@ -1940,7 +1947,7 @@ function library:addTab(name)
             text.Parent = keybind
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             text.BackgroundTransparency = 1.000
-            text.Position = UDim2.new(0.02, -1, 0, 10)
+            text.Position = UDim2.new(0.02, 2, 0, 10)
             text.Font = Enum.Font.Code
             text.Text = args.text or args.flag
             text.TextColor3 = Color3.fromRGB(244, 244, 244)
@@ -1950,12 +1957,12 @@ function library:addTab(name)
             --
             button.Parent = keybind
             button.BackgroundColor3 = Color3.fromRGB(187, 131, 255)
-            button.BackgroundTransparency = 1.000
+            button.BackgroundTransparency = 1
             button.BorderSizePixel = 0
-            button.Position = UDim2.new(7.09711117e-08, 0, 0, 0)
-            button.Size = UDim2.new(0.02, 0, 1, 0)
+            button.Position = UDim2.new(1, -5, 0, 0)
+            button.Size = UDim2.new(0, 0, 0, 0)
             button.Font = Enum.Font.Code
-            button.Text = "--"
+            button.Text = "..."
             button.TextColor3 = Color3.fromRGB(155, 155, 155)
             button.TextSize = 13.000
             button.TextStrokeTransparency = 0.000
@@ -1967,15 +1974,17 @@ function library:addTab(name)
                 end
                 library.flags[args.flag] = val
                 button.Text = keyNames[val] or val.Name
+				button.Size = UDim2.new(0, -button.TextBounds.X - 3, 0, 20)
             end
             library.Connections[#library.Connections + 1] = inputService.InputBegan:Connect(
                 function(key)
-                    local key = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
+                    local key = (key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType) or (key.KeyCode == Enum.KeyCode.Backspace and Enum.KeyCode.Unknown) or key.KeyCode
                     if next then
                         if not table.find(library.blacklisted, key) then
                             next = false
                             library.flags[args.flag] = key
                             button.Text = keyNames[key] or key.Name
+							button.Size = UDim2.new(0, -button.TextBounds.X - 3, 0, 20)
                             button.TextColor3 = Color3.fromRGB(155, 155, 155)
                         end
                     end
@@ -1992,7 +2001,7 @@ function library:addTab(name)
                     end
                     library.flags[args.flag] = Enum.KeyCode.Unknown
                     button.Text = "..."
-                    button.TextColor3 = Color3.new(0.2, 0.2, 0.2)
+                    button.TextColor3 = library.libColor
                     next = true
                 end
             )
@@ -2025,7 +2034,7 @@ if not isfolder(library.cheatname) then
     makefolder(library.cheatname)
 end
 --
-function library:createConfig()
+function library:CreateConfig()
     local name = library.flags["config_name"]
     if contains(library.options["selected_config"].values, name) then
         return library:notify(name .. " already exists!")
@@ -2049,10 +2058,10 @@ function library:createConfig()
     local fixedname = library.cheatname .. "/" .. name:gsub("\\", "/") .. library.ext
     writefile(fixedname, game:GetService("HttpService"):JSONEncode(jig))
     library:notify("Succesfully created config " .. name .. "!")
-    library:refreshConfigs()
+    library:RefreshConfigs()
 end
 
-function library:saveConfig()
+function library:SaveConfig()
     local name = library.flags["selected_config"]
     local jig = {}
     for i, v in next, library.flags do
@@ -2070,10 +2079,10 @@ function library:saveConfig()
     local fixedname = library.cheatname .. "/" .. name:gsub("\\", "/") .. library.ext
     writefile(fixedname, game:GetService("HttpService"):JSONEncode(jig))
     library:notify("Succesfully updated config " .. name .. "!")
-    library:refreshConfigs()
+    library:RefreshConfigs()
 end
 
-function library:loadConfig()
+function library:LoadConfig()
     local name = library.flags["selected_config"]
     if not isfile(name) then
         library:notify("Config file not found!")
@@ -2118,7 +2127,7 @@ function library:loadConfig()
     library:notify("Succesfully loaded config " .. name .. "!")
 end
 --
-function library:refreshConfigs()
+function library:RefreshConfigs()
     local tbl = {}
     for i, v in next, listfiles(library.cheatname) do
         table.insert(tbl, v)
@@ -2126,11 +2135,9 @@ function library:refreshConfigs()
     library.options["selected_config"].refresh(tbl)
 end
 --
-function library:deleteConfig()
+function library:DeleteConfig()
     if isfile(library.flags["selected_config"]) then
         delfile(library.flags["selected_config"])
-        library:refreshConfigs()
+        library:RefreshConfigs()
     end
 end
---
-return library
