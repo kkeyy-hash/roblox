@@ -1993,8 +1993,8 @@ function contains(list, x)
     return false
 end
 
-if not isfolder("ambani") then
-    makefolder("ambani")
+if not isfolder(library.cheatname) then
+    makefolder(library.cheatname)
 end
 
 function library:createConfig()
@@ -2003,7 +2003,7 @@ function library:createConfig()
         return library:notify(name .. " already exists!")
     end
     if name == "" then
-        return library:notify("Put a name goofy")
+        return library:notify("Invalid config name")
     end
     local jig = {}
     for i, v in next, library.flags do
@@ -2018,7 +2018,7 @@ function library:createConfig()
             jig[i] = v
         end
     end
-    local fixedname = "ambani/" .. name:gsub("\\", "/") .. ".cfg"
+    local fixedname = library.cheatname .. "/" .. name:gsub("\\", "/") .. library.ext
     writefile(fixedname, game:GetService("HttpService"):JSONEncode(jig))
     library:notify("Succesfully created config " .. name .. "!")
     library:refreshConfigs()
@@ -2039,7 +2039,7 @@ function library:saveConfig()
             jig[i] = v
         end
     end
-    local fixedname = "ambani/" .. name:gsub("\\", "/") .. ".cfg"
+    local fixedname = library.cheatname .. "/" .. name:gsub("\\", "/") .. library.ext
     writefile(fixedname, game:GetService("HttpService"):JSONEncode(jig))
     library:notify("Succesfully updated config " .. name .. "!")
     library:refreshConfigs()
@@ -2092,7 +2092,7 @@ end
 
 function library:refreshConfigs()
     local tbl = {}
-    for i, v in next, listfiles("ambani") do
+    for i, v in next, listfiles(library.cheatname) do
         table.insert(tbl, v)
     end
     library.options["selected_config"].refresh(tbl)
