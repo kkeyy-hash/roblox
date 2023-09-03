@@ -71,13 +71,13 @@ function draggable(a)
             a.Position = UDim2.new(f.X.Scale, f.X.Offset + i.X, f.Y.Scale, f.Y.Offset + i.Y)
         end
     end
-    Connections[#Connections + 1] = a.InputBegan:Connect(
+    library.Connections[#library.Connections + 1] = a.InputBegan:Connect(
         function(h)
             if h.UserInputType == Enum.UserInputType.MouseButton1 or h.UserInputType == Enum.UserInputType.Touch then
                 c = true
                 e = h.Position
                 f = a.Position
-                Connections[#Connections + 1] = h.Changed:Connect(
+                library.Connections[#library.Connections + 1] = h.Changed:Connect(
                     function()
                         if h.UserInputState == Enum.UserInputState.End then
                             c = false
@@ -87,14 +87,14 @@ function draggable(a)
             end
         end
     )
-    Connections[#Connections + 1] = a.InputChanged:Connect(
+    library.Connections[#library.Connections + 1] = a.InputChanged:Connect(
         function(h)
             if h.UserInputType == Enum.UserInputType.MouseMovement or h.UserInputType == Enum.UserInputType.Touch then
                 d = h
             end
         end
     )
-    Connections[#Connections + 1] = b.InputChanged:Connect(
+    library.Connections[#library.Connections + 1] = b.InputChanged:Connect(
         function(h)
             if h == d and c then
                 g(h)
@@ -107,7 +107,7 @@ draggable(menu.bg)
 local tabholder = menu.bg.bg.bg.bg.main.group
 local tabviewer = menu.bg.bg.bg.bg.tabbuttons
 --
-Connections[#Connections + 1] = inputService.InputEnded:Connect(
+library.Connections[#library.Connections + 1] = inputService.InputEnded:Connect(
     function(key)
         if key.KeyCode == Enum.KeyCode.RightShift then
             menu.Enabled = not menu.Enabled
@@ -188,7 +188,7 @@ function library:addTab(name)
     newButton.Visible = true
     newButton.text.Text = name
     newButton.element.BackgroundColor3 = library.libColor
-    Connections[#Connections + 1] = newButton.MouseButton1Click:Connect(
+    library.Connections[#library.Connections + 1] = newButton.MouseButton1Click:Connect(
         function()
             for i, v in next, library.tabs do
                 v.Visible = v == newTab
@@ -373,7 +373,7 @@ function library:addTab(name)
                     args.callback(state)
                 end
             end
-            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
+            library.Connections[#library.Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     state = not state
                     front.Name = state and "accent" or "back"
@@ -386,12 +386,12 @@ function library:addTab(name)
                     end
                 end
             )
-            Connections[#Connections + 1] = button.MouseEnter:connect(
+            library.Connections[#library.Connections + 1] = button.MouseEnter:connect(
                 function()
                     mid.BorderColor3 = library.libColor
                 end
             )
-            Connections[#Connections + 1] = button.MouseLeave:connect(
+            library.Connections[#library.Connections + 1] = button.MouseLeave:connect(
                 function()
                     mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                 end
@@ -442,7 +442,7 @@ function library:addTab(name)
                     library.flags[args.flag] = val
                     button.Text = keyNames[val] or val.Name
                 end
-                Connections[#Connections + 1] = inputService.InputBegan:Connect(
+                library.Connections[#library.Connections + 1] = inputService.InputBegan:Connect(
                     function(key)
                         local key = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
                         if next then
@@ -459,7 +459,7 @@ function library:addTab(name)
                     end
                 )
                 --
-                Connections[#Connections + 1] = button.MouseButton1Click:Connect(
+                library.Connections[#library.Connections + 1] = button.MouseButton1Click:Connect(
                     function()
                         if library.colorpicking then
                             return
@@ -625,26 +625,26 @@ function library:addTab(name)
                 copy.TextSize = 14.000
                 copy.TextStrokeTransparency = 0.000
                 --
-                Connections[#Connections + 1] = copy.MouseButton1Click:Connect(
+                library.Connections[#library.Connections + 1] = copy.MouseButton1Click:Connect(
                     function()
                         -- "  "..args.text or "  "..args.flag
                         colorFrame.Visible = false
                     end
                 )
                 --
-                Connections[#Connections + 1] = button2.MouseButton1Click:Connect(
+                library.Connections[#library.Connections + 1] = button2.MouseButton1Click:Connect(
                     function()
                         colorFrame.Visible = not colorFrame.Visible
                         mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                     end
                 )
                 --
-                Connections[#Connections + 1] = button2.MouseEnter:connect(
+                library.Connections[#library.Connections + 1] = button2.MouseEnter:connect(
                     function()
                         mid.BorderColor3 = library.libColor
                     end
                 )
-                Connections[#Connections + 1] = button2.MouseLeave:connect(
+                library.Connections[#library.Connections + 1] = button2.MouseLeave:connect(
                     function()
                         mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                     end
@@ -676,7 +676,7 @@ function library:addTab(name)
                 local pickerX, pickerY, hueY = 0, 0, 0
                 local oldpercentX, oldpercentY = 0, 0
                 --
-                Connections[#Connections + 1] = hue.MouseEnter:Connect(
+                library.Connections[#library.Connections + 1] = hue.MouseEnter:Connect(
                     function()
                         local input = hue.InputBegan:connect(
                             function(key)
@@ -699,7 +699,7 @@ function library:addTab(name)
                                 end
                             end
                         )
-                        Connections[#Connections + 1] = input
+                        library.Connections[#library.Connections + 1] = input
                         local leave
                         leave =
                             hue.MouseLeave:connect(
@@ -708,11 +708,11 @@ function library:addTab(name)
                                 leave:disconnect()
                             end
                         )
-                        Connections[#Connections + 1] = leave
+                        library.Connections[#library.Connections + 1] = leave
                     end
                 )
                 --
-                Connections[#Connections + 1] = picker.MouseEnter:Connect(
+                library.Connections[#library.Connections + 1] = picker.MouseEnter:Connect(
                     function()
                         local input =
                             picker.InputBegan:connect(
@@ -733,7 +733,7 @@ function library:addTab(name)
                                 end
                             end
                         )
-                        Connections[#Connections + 1] = input
+                        library.Connections[#library.Connections + 1] = input
                         local leave
                         leave =
                             picker.MouseLeave:connect(
@@ -742,17 +742,17 @@ function library:addTab(name)
                                 leave:disconnect()
                             end
                         )
-                        Connections[#Connections + 1] = leave
+                        library.Connections[#library.Connections + 1] = leave
                     end
                 )
                 --
-                Connections[#Connections + 1] = hue.MouseMoved:connect(
+                library.Connections[#library.Connections + 1] = hue.MouseMoved:connect(
                     function(_, y)
                         hueY = y
                     end
                 )
                 --
-                Connections[#Connections + 1] = picker.MouseMoved:connect(
+                library.Connections[#library.Connections + 1] = picker.MouseMoved:connect(
                     function(x, y)
                         pickerX, pickerY = x, y
                     end
@@ -825,19 +825,19 @@ function library:addTab(name)
             gradient.Name = "gradient"
             gradient.Parent = main
             --
-            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
+            library.Connections[#library.Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     if not library.colorpicking then
                         args.callback()
                     end
                 end
             )
-            Connections[#Connections + 1] = button.MouseEnter:connect(
+            library.Connections[#library.Connections + 1] = button.MouseEnter:connect(
                 function()
                     main.BorderColor3 = library.libColor
                 end
             )
-            Connections[#Connections + 1] = button.MouseLeave:connect(
+            library.Connections[#library.Connections + 1] = button.MouseLeave:connect(
                 function()
                     main.BorderColor3 = Color3.fromRGB(60, 60, 60)
                 end
@@ -1000,7 +1000,7 @@ function library:addTab(name)
                     end
                 end
             )
-            Connections[#Connections + 1] = button.MouseLeave:connect(
+            library.Connections[#library.Connections + 1] = button.MouseLeave:connect(
                 function()
                     entered = false
                     main.BorderColor3 = Color3.fromRGB(60, 60, 60)
@@ -1031,7 +1031,7 @@ function library:addTab(name)
             local gradient = Instance.new("UIGradient")
             local text = Instance.new("TextLabel")
             --
-            Connections[#Connections + 1] = box:GetPropertyChangedSignal("Text"):Connect(
+            library.Connections[#library.Connections + 1] = box:GetPropertyChangedSignal("Text"):Connect(
                 function(val)
                     if library.colorpicking then
                         return
@@ -1296,7 +1296,7 @@ function library:addTab(name)
                     end
                     for i, v in next, holder:GetChildren() do
                         if v.ClassName ~= "Frame" then
-                            print("PLSREPLACEWITH")
+                            continue
                         end
                         v.off.TextColor3 = Color3.new(0.65, 0.65, 0.65)
                         for _i, _v in next, library.flags[args.flag] do
@@ -1390,19 +1390,19 @@ function library:addTab(name)
                 )
             end
             --
-            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
+            library.Connections[#library.Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     if not library.colorpicking then
                         frame.Visible = not frame.Visible
                     end
                 end
             )
-            Connections[#Connections + 1] = button.MouseEnter:connect(
+            library.Connections[#library.Connections + 1] = button.MouseEnter:connect(
                 function()
                     main.BorderColor3 = library.libColor
                 end
             )
-            Connections[#Connections + 1] = button.MouseLeave:connect(
+            library.Connections[#library.Connections + 1] = button.MouseLeave:connect(
                 function()
                     main.BorderColor3 = Color3.fromRGB(60, 60, 60)
                 end
@@ -1527,7 +1527,7 @@ function library:addTab(name)
                 end
                 holder.Visible = true
             end
-            Connections[#Connections + 1] = holder:GetPropertyChangedSignal("CanvasPosition"):Connect(
+            library.Connections[#library.Connections + 1] = holder:GetPropertyChangedSignal("CanvasPosition"):Connect(
                 function()
                     up.Visible = (holder.CanvasPosition.Y > 1)
                     dwn.Visible = (holder.CanvasPosition.Y + 1 < (holder.AbsoluteCanvasSize.Y - holder.AbsoluteSize.Y))
@@ -1574,7 +1574,7 @@ function library:addTab(name)
                     text.TextSize = 14.000
                     text.TextStrokeTransparency = 0.000
                     --
-                    Connections[#Connections + 1] = button.MouseButton1Click:Connect(
+                    library.Connections[#library.Connections + 1] = button.MouseButton1Click:Connect(
                         function()
                             updateValue(v)
                         end
@@ -1779,25 +1779,25 @@ function library:addTab(name)
             copy.TextSize = 14.000
             copy.TextStrokeTransparency = 0.000
             --
-            Connections[#Connections + 1] = copy.MouseButton1Click:Connect(
+            library.Connections[#library.Connections + 1] = copy.MouseButton1Click:Connect(
                 function()
                     colorFrame.Visible = false
                 end
             )
             --
-            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
+            library.Connections[#library.Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     colorFrame.Visible = not colorFrame.Visible
                     mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                 end
             )
             --
-            Connections[#Connections + 1] = button.MouseEnter:connect(
+            library.Connections[#library.Connections + 1] = button.MouseEnter:connect(
                 function()
                     mid.BorderColor3 = library.libColor
                 end
             )
-            Connections[#Connections + 1] = button.MouseLeave:connect(
+            library.Connections[#library.Connections + 1] = button.MouseLeave:connect(
                 function()
                     mid.BorderColor3 = Color3.fromRGB(30, 30, 30)
                 end
@@ -1829,7 +1829,7 @@ function library:addTab(name)
             local pickerX, pickerY, hueY = 0, 0, 0
             local oldpercentX, oldpercentY = 0, 0
             --
-            Connections[#Connections + 1] = hue.MouseEnter:Connect(
+            library.Connections[#library.Connections + 1] = hue.MouseEnter:Connect(
                 function()
                     local input =
                         hue.InputBegan:connect(
@@ -1852,7 +1852,7 @@ function library:addTab(name)
                             end
                         end
                     )
-                    Connections[#Connections + 1] = input
+                    library.Connections[#library.Connections + 1] = input
                     local leave
                     leave =
                         hue.MouseLeave:connect(
@@ -1861,11 +1861,11 @@ function library:addTab(name)
                             leave:disconnect()
                         end
                     )
-                    Connections[#Connections + 1] = leave
+                    library.Connections[#library.Connections + 1] = leave
                 end
             )
             --
-            Connections[#Connections + 1] = picker.MouseEnter:Connect(
+            library.Connections[#library.Connections + 1] = picker.MouseEnter:Connect(
                 function()
                     local input =
                         picker.InputBegan:connect(
@@ -1884,7 +1884,7 @@ function library:addTab(name)
                             end
                         end
                     )
-                    Connections[#Connections + 1] = input
+                    library.Connections[#library.Connections + 1] = input
                     local leave
                     leave =
                         picker.MouseLeave:connect(
@@ -1893,17 +1893,17 @@ function library:addTab(name)
                             leave:disconnect()
                         end
                     )
-                    Connections[#Connections + 1] = leave
+                    library.Connections[#library.Connections + 1] = leave
                 end
             )
             --
-            Connections[#Connections + 1] = hue.MouseMoved:connect(
+            library.Connections[#library.Connections + 1] = hue.MouseMoved:connect(
                 function(_, y)
                     hueY = y
                 end
             )
             --
-            Connections[#Connections + 1] = picker.MouseMoved:connect(
+            library.Connections[#library.Connections + 1] = picker.MouseMoved:connect(
                 function(x, y)
                     pickerX, pickerY = x, y
                 end
@@ -1968,7 +1968,7 @@ function library:addTab(name)
                 library.flags[args.flag] = val
                 button.Text = keyNames[val] or val.Name
             end
-            Connections[#Connections + 1] = inputService.InputBegan:Connect(
+            library.Connections[#library.Connections + 1] = inputService.InputBegan:Connect(
                 function(key)
                     local key = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
                     if next then
@@ -1985,7 +1985,7 @@ function library:addTab(name)
                 end
             )
             --
-            Connections[#Connections + 1] = button.MouseButton1Click:Connect(
+            library.Connections[#library.Connections + 1] = button.MouseButton1Click:Connect(
                 function()
                     if library.colorpicking then
                         return
