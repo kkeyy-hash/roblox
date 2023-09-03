@@ -6,6 +6,10 @@ local localPlayer = players.LocalPlayer
 local mouse = localPlayer:GetMouse()
 
 local menu = game:GetObjects("rbxassetid://14663609034")[1] -- original: 12702460854
+if getgenv().ambanimenu ~= nil then
+    getgenv().ambanimenu:Destroy()
+end
+getgenv().ambanimenu = menu
 menu.bg.Position = UDim2.new(0.5, -menu.bg.Size.X.Offset / 2, 0.5, -menu.bg.Size.Y.Offset / 2)
 menu.Parent = gethui and gethui() or game:GetService("CoreGui")
 menu.bg.pre.Text = 'ambani<font color="#6fa2ff">.pub</font>'
